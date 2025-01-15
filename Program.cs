@@ -1,10 +1,13 @@
-﻿namespace TodoApp
+﻿using TodoApp;
+using Terminal.Gui;
+
+Application.Init();
+
+try
 {
-    internal class Program
-    {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Hello, World!");
-        }
-    }
+    Application.Run(new MyView());
+}
+finally
+{
+    Application.Shutdown();
 }
