@@ -5,7 +5,7 @@ using TodoAppLib;
 /// <summary>
 /// Tests for the TodoAppLib.
 /// Only testing the methods from TodoAppLib as the useful methods from
-/// TodoAppLib.Task are inacessible
+/// TodoAppLib.Task are inaccessible
 /// </summary>
 public class TodoAppLibTaskListTests
 {
