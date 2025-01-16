@@ -1,16 +1,18 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using Task = TodoAppLib.Internal.Task;
+﻿using Task = TodoAppLib.Internal.Task;
 
 namespace TodoAppLib;
 
 /// <summary>
-/// A container that allows for the storage and manipulation of tasks
+/// A container that allows for the storage and manipulation of tasks.
 /// </summary>
 public class TaskList
 {
     private SortedSet<Task> Tasks = new();
-    private SortedSet<Task> Completed = new();
+    private SortedSet<Task> CompletedTasks = new();
 
+    /// <summary>
+    /// Prints the Current Tasks that are not yet completed.
+    /// </summary>
     public void PrintTasks()
     {
         foreach (Task task in Tasks)
@@ -19,36 +21,75 @@ public class TaskList
         }
     }
 
+    /// <summary>
+    /// Prints the Current Tasks that are completed.
+    /// </summary>
     public void PrintCompletedTasks()
     {
-        foreach (Task task in Completed)
+        foreach (Task task in CompletedTasks)
         {
             Console.WriteLine(task.ToString());
         }
     }
 
-    public void Add(string title, DateTime deadline)
+    /// <summary>
+    /// Add a new task to the task list.
+    /// </summary>
+    /// <param name="title"> Title of the task</param>
+    /// <param name="deadline"> When the task must be completed, cannot contain commas.</param>
+    /// <returns>true for success, false for failure.</returns>
+    public bool Add(string title, DateTime deadline)
     {
         Task task = Task.Create(title, deadline);
         // Don't want duplicates
-        Completed.Remove(task);
-        Tasks.Add(task);
+        return CompletedTasks.Remove(task) || Tasks.Add(task);
     }
 
-    public void Remove(string title, DateTime deadline)
+    /// <summary>
+    /// Remove a task from the task list.
+    /// </summary>
+    /// <param name="title"> Title of the task</param>
+    /// <param name="deadline"> When the task must be completed, cannot contain commas.</param>
+    /// <returns>treu for success, false for failure.</returns>
+    public bool Remove(string title, DateTime deadline)
     {
         Task task = Task.Create(title, deadline);
-        Tasks.Remove(task);
-        Completed.Remove(task);
+        return Tasks.Remove(task) || CompletedTasks.Remove(task);
     }
 
-    public bool Contains(string title, DateTime deadline)
+    /// <summary>
+    /// Checks if a task that is yet to be completed is contained in the task list.
+    /// </summary>
+    /// <param name="title"> Title of the task</param>
+    /// <param name="deadline"> When the task must be completed, cannot contain commas.</param>
+    /// <returns>true for success, false for failure.</returns>
+    public bool ContainsTask(string title, DateTime deadline)
     {
         Task task = Task.Create(title, deadline);
-        return Tasks.Contains(task) || Completed.Contains(task);
+        return Tasks.Contains(task);
     }
 
-    public void ModifyTask(
+    /// <summary>
+    /// Checks if a task that is completed is contained in the task list.
+    /// </summary>
+    /// <param name="title"> Title of the task</param>
+    /// <param name="deadline"> When the task must be completed, cannot contain commas.</param>
+    /// <returns>true for success, false for failure.</returns>
+    public bool ContainsCompletedTask(string title, DateTime deadline)
+    {
+        Task task = Task.Create(title, deadline);
+        return CompletedTasks.Contains(task);
+    }
+
+    /// <summary>
+    /// Modifies a task that is contained in the task list.
+    /// </summary>
+    /// <param name="currentTitle"></param>
+    /// <param name="currentDeadline"></param>
+    /// <param name="newTitle"></param>
+    /// <param name="newDeadline"></param>
+    /// <returns>True for success, false for failure.</returns>
+    public bool ModifyTask(
         string currentTitle,
         DateTime currentDeadline,
         string newTitle,
@@ -57,19 +98,27 @@ public class TaskList
     {
         var modify = (SortedSet<Task> tasks) =>
         {
-            Remove(currentTitle, currentDeadline);
-            Add(newTitle, newDeadline);
+            return Remove(currentTitle, currentDeadline) && Add(newTitle, newDeadline);
         };
-        modify(Tasks);
-        modify(Completed);
+        return modify(Tasks) || modify(CompletedTasks);
     }
 
-    public void Complete(string title, DateTime deadline)
+    /// <summary>
+    /// Changes the status of a task to be completed.
+    /// </summary>
+    /// <param name="title"></param>
+    /// <param name="deadline"></param>
+    /// <returns>True for success, false for failure</returns>
+    public bool CompleteTask(string title, DateTime deadline)
     {
         Task complted = Task.Create(title, deadline);
         if (Tasks.Remove(complted))
         {
-            Completed.Add(complted);
+            return CompletedTasks.Add(complted);
+        }
+        else
+        {
+            return false;
         }
     }
 }

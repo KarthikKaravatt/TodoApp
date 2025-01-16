@@ -8,4 +8,4 @@ TaskList taskList = new();
 taskList.Add("kLOL", date2);
 taskList.Add("jLOL", date2);
 taskList.Add("LOL", date);
-taskList.Complete("LOL", date);
+taskList.CompleteTask("LOL", date);

@@ -15,10 +15,6 @@ public record Task : IComparable<Task>
         {
             throw new ArgumentException("Title cannot contain a comma");
         }
-        else if (DateTime.Compare(deadLine, DateTime.Now) < 0)
-        {
-            throw new ArgumentException("Deadline cannot be before the current date");
-        }
         return new Task { Title = title, DeadLine = deadLine };
     }
 
