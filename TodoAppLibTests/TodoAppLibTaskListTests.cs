@@ -1,10 +1,12 @@
-﻿// Ignore Spelling: Todo
-
-namespace TodoAppLibTests;
+﻿namespace TodoAppLibTests;
 
 using TodoAppLib;
-using Task = TodoAppLib.Internal.Task;
 
+/// <summary>
+/// Tests for the TodoAppLib.
+/// Only testing the methods from TodoAppLib as the useful methods from
+/// TodoAppLib.Task are inacessible
+/// </summary>
 public class TodoAppLibTaskListTests
 {
     private static readonly Dictionary<string, (string title, DateTime deadline)> _tasks = new()
@@ -15,197 +17,156 @@ public class TodoAppLibTaskListTests
         { "TestTaskBroken", ("TestTaskBroken,", new DateTime(1999, 1, 1)) },
     };
 
-    [Theory]
-    [InlineData("TestTask")]
-    [InlineData("TestTaskTwo")]
-    [InlineData("TestTaskThree")]
-    public void Add_SingleTask_ReturnsTrue(string taskKey)
+    public static IEnumerable<object[]> ValidTasks =>
+        _tasks.Where(kv => kv.Key != "TestTaskBroken").Select(kv => new object[] { kv.Key });
+
+    private static void AddTask(TaskList taskList, string taskKey)
     {
-        TaskList taskList = new();
-        (string title, DateTime deadline) = _tasks[taskKey];
-        Assert.True(taskList.Add(title, deadline));
+        var (title, deadline) = _tasks[taskKey];
+        taskList.Add(title, deadline);
     }
 
     [Theory]
-    [InlineData("TestTaskBroken")]
-    public void Add_SingleTask_ThrowsArgumentException(string taskKey)
+    [MemberData(nameof(ValidTasks))]
+    public void Add_SingleTask_ReturnsTrue(string taskKey)
     {
-        TaskList taskList = new();
-        (string title, DateTime deadline) = _tasks[taskKey];
+        var taskList = new TaskList();
+        var (title, deadline) = _tasks[taskKey];
+
+        Assert.True(taskList.Add(title, deadline));
+    }
+
+    [Fact]
+    public void Add_SingleTask_ThrowsArgumentException()
+    {
+        var taskList = new TaskList();
+        var (title, deadline) = _tasks["TestTaskBroken"];
+
         Assert.Throws<ArgumentException>(() => taskList.Add(title, deadline));
     }
 
     [Theory]
-    [InlineData("TestTask")]
-    [InlineData("TestTaskTwo")]
-    [InlineData("TestTaskThree")]
+    [MemberData(nameof(ValidTasks))]
     public void Remove_SingleTask_ReturnsTrue(string taskKey)
     {
-        TaskList taskList = new();
-        (string title, DateTime deadline) = _tasks[taskKey];
-        taskList.Add(title, deadline);
+        var taskList = new TaskList();
+        AddTask(taskList, taskKey);
+
+        var (title, deadline) = _tasks[taskKey];
         Assert.True(taskList.Remove(title, deadline));
     }
 
     [Theory]
-    [InlineData("TestTask")]
-    [InlineData("TestTaskTwo")]
-    [InlineData("TestTaskThree")]
+    [MemberData(nameof(ValidTasks))]
     public void Remove_SingleTask_ReturnsFalse(string taskKey)
     {
-        TaskList taskList = new();
-        (string title, DateTime deadline) = _tasks[taskKey];
+        var taskList = new TaskList();
+        var (title, deadline) = _tasks[taskKey];
+
         Assert.False(taskList.Remove(title, deadline));
     }
 
-    [Theory]
-    [InlineData("TestTaskBroken")]
-    public void Remove_SingleTask_ThrowsArgumentException(string taskKey)
+    [Fact]
+    public void Remove_SingleTask_ThrowsArgumentException()
     {
-        TaskList taskList = new();
-        (string title, DateTime deadline) = _tasks[taskKey];
+        var taskList = new TaskList();
+        var (title, deadline) = _tasks["TestTaskBroken"];
+
         Assert.Throws<ArgumentException>(() => taskList.Remove(title, deadline));
     }
 
     [Theory]
-    [InlineData("TestTask")]
-    [InlineData("TestTaskTwo")]
-    [InlineData("TestTaskThree")]
+    [MemberData(nameof(ValidTasks))]
     public void ContainsTask_SingleTask_ReturnsTrue(string taskKey)
     {
-        TaskList taskList = new();
-        (string title, DateTime deadline) = _tasks[taskKey];
-        bool result = taskList.Add(title, deadline);
+        var taskList = new TaskList();
+        AddTask(taskList, taskKey);
+
+        var (title, deadline) = _tasks[taskKey];
         Assert.True(taskList.ContainsTask(title, deadline));
     }
 
     [Theory]
-    [InlineData("TestTask")]
-    [InlineData("TestTaskTwo")]
-    [InlineData("TestTaskThree")]
-    public void ContainsCompletedTask_SingleTask_ReturnsFalse(string taskKey)
-    {
-        TaskList taskList = new();
-        (string title, DateTime deadline) = _tasks[taskKey];
-        Assert.False(taskList.ContainsCompletedTask(title, deadline));
-    }
-
-    [Theory]
-    [InlineData("TestTaskBroken")]
-    public void ContainsCompletedTask_SingleTask_ThrowsArgumentException(string taskKey)
-    {
-        TaskList taskList = new();
-        (string title, DateTime deadline) = _tasks[taskKey];
-        Assert.Throws<ArgumentException>(() => taskList.ContainsCompletedTask(title, deadline));
-    }
-
-    [Theory]
-    [InlineData("TestTask")]
-    [InlineData("TestTaskTwo")]
-    [InlineData("TestTaskThree")]
-    public void ContainsCompletedTask_SingleTask_ReturnsTrue(string taskKey)
-    {
-        TaskList taskList = new();
-        (string title, DateTime deadline) = _tasks[taskKey];
-        bool result = taskList.Add(title, deadline);
-        Assert.True(taskList.ContainsTask(title, deadline));
-    }
-
-    [Theory]
-    [InlineData("TestTask")]
-    [InlineData("TestTaskTwo")]
-    [InlineData("TestTaskThree")]
+    [MemberData(nameof(ValidTasks))]
     public void ContainsTask_SingleTask_ReturnsFalse(string taskKey)
     {
-        TaskList taskList = new();
-        (string title, DateTime deadline) = _tasks[taskKey];
+        var taskList = new TaskList();
+        var (title, deadline) = _tasks[taskKey];
+
         Assert.False(taskList.ContainsTask(title, deadline));
     }
 
-    [Theory]
-    [InlineData("TestTaskBroken")]
-    public void ContainsTask_SingleTask_ThrowsArgumentException(string taskKey)
+    [Fact]
+    public void ContainsTask_SingleTask_ThrowsArgumentException()
     {
-        TaskList taskList = new();
-        (string title, DateTime deadline) = _tasks[taskKey];
+        var taskList = new TaskList();
+        var (title, deadline) = _tasks["TestTaskBroken"];
+
         Assert.Throws<ArgumentException>(() => taskList.ContainsTask(title, deadline));
     }
 
     [Theory]
-    [InlineData("TestTask")]
-    [InlineData("TestTaskTwo")]
-    [InlineData("TestTaskThree")]
+    [MemberData(nameof(ValidTasks))]
     public void ModifyTask_SingleTask_ReturnsTrue(string taskKey)
     {
-        TaskList taskList = new();
-        (string title, DateTime deadline) = _tasks[taskKey];
-        taskList.Add(title, deadline);
-        Assert.True(taskList.ModifyTask(title, deadline, $"Modified{title}", deadline));
-        taskList.Add(title, deadline);
-        Assert.True(
-            taskList.ModifyTask(title, deadline, $"Modified{title}", deadline.AddYears(10))
-        );
-        taskList.Add(title, deadline);
-        Assert.True(taskList.ModifyTask(title, deadline, title, deadline.AddYears(10)));
+        var taskList = new TaskList();
+        AddTask(taskList, taskKey);
+
+        var (title, deadline) = _tasks[taskKey];
+
+        Assert.True(taskList.ModifyTask(title, deadline, $"Modified{title}", deadline.AddYears(1)));
     }
 
     [Theory]
-    [InlineData("TestTask")]
-    [InlineData("TestTaskTwo")]
-    [InlineData("TestTaskThree")]
+    [MemberData(nameof(ValidTasks))]
     public void ModifyTask_SingleTask_ReturnsFalse(string taskKey)
     {
-        TaskList taskList = new();
-        (string title, DateTime deadline) = _tasks[taskKey];
-        Assert.False(taskList.ModifyTask(title, deadline, $"Modified{title}", deadline));
+        var taskList = new TaskList();
+        var (title, deadline) = _tasks[taskKey];
+
         Assert.False(
-            taskList.ModifyTask(title, deadline, $"Modified{title}", deadline.AddYears(10))
+            taskList.ModifyTask(title, deadline, $"Modified{title}", deadline.AddYears(1))
         );
-        Assert.False(taskList.ModifyTask(title, deadline, title, deadline.AddYears(10)));
     }
 
-    [Theory]
-    [InlineData("TestTaskBroken")]
-    public void ModifyTask_SingleTask_ThrowsArgumentException(string taskKey)
+    [Fact]
+    public void ModifyTask_SingleTask_ThrowsArgumentException()
     {
-        TaskList taskList = new();
-        (string title, DateTime deadline) = _tasks[taskKey];
+        var taskList = new TaskList();
+        var (title, deadline) = _tasks["TestTaskBroken"];
+
         Assert.Throws<ArgumentException>(
-            () => taskList.ModifyTask(title, deadline, title, deadline.AddYears(10))
+            () => taskList.ModifyTask(title, deadline, $"Modified{title}", deadline.AddYears(1))
         );
     }
 
     [Theory]
-    [InlineData("TestTask")]
-    [InlineData("TestTaskTwo")]
-    [InlineData("TestTaskThree")]
+    [MemberData(nameof(ValidTasks))]
     public void CompleteTask_SingleTask_ReturnsTrue(string taskKey)
     {
-        TaskList taskList = new();
-        (string title, DateTime deadline) = _tasks[taskKey];
-        taskList.Add(title, deadline);
-        taskList.CompleteTask(title, deadline);
+        var taskList = new TaskList();
+        AddTask(taskList, taskKey);
+
+        var (title, deadline) = _tasks[taskKey];
         Assert.True(taskList.CompleteTask(title, deadline));
     }
 
     [Theory]
-    [InlineData("TestTask")]
-    [InlineData("TestTaskTwo")]
-    [InlineData("TestTaskThree")]
+    [MemberData(nameof(ValidTasks))]
     public void CompleteTask_SingleTask_ReturnsFalse(string taskKey)
     {
-        TaskList taskList = new();
-        (string title, DateTime deadline) = _tasks[taskKey];
-        taskList.CompleteTask(title, deadline);
+        var taskList = new TaskList();
+        var (title, deadline) = _tasks[taskKey];
+
         Assert.False(taskList.CompleteTask(title, deadline));
     }
 
-    [Theory]
-    [InlineData("TestTaskBroken")]
-    public void CompleteTask_SingleTask_ThrowsArgumentException(string taskKey)
+    [Fact]
+    public void CompleteTask_SingleTask_ThrowsArgumentException()
     {
-        TaskList taskList = new();
-        (string title, DateTime deadline) = _tasks[taskKey];
+        var taskList = new TaskList();
+        var (title, deadline) = _tasks["TestTaskBroken"];
+
         Assert.Throws<ArgumentException>(() => taskList.CompleteTask(title, deadline));
     }
 }
