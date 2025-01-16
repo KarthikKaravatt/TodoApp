@@ -7,15 +7,15 @@ namespace TodoAppLib;
 /// </summary>
 public class TaskList
 {
-    private SortedSet<Task> Tasks = new();
-    private SortedSet<Task> CompletedTasks = new();
+    private readonly SortedSet<Task> _tasks = new();
+    private readonly SortedSet<Task> _completedTasks = new();
 
     /// <summary>
     /// Prints the Current Tasks that are not yet completed.
     /// </summary>
     public void PrintTasks()
     {
-        foreach (Task task in Tasks)
+        foreach (Task task in _tasks)
         {
             Console.WriteLine(task.ToString());
         }
@@ -26,7 +26,7 @@ public class TaskList
     /// </summary>
     public void PrintCompletedTasks()
     {
-        foreach (Task task in CompletedTasks)
+        foreach (Task task in _completedTasks)
         {
             Console.WriteLine(task.ToString());
         }
@@ -42,7 +42,7 @@ public class TaskList
     {
         Task task = Task.Create(title, deadline);
         // Don't want duplicates
-        return CompletedTasks.Remove(task) || Tasks.Add(task);
+        return _completedTasks.Remove(task) || _tasks.Add(task);
     }
 
     /// <summary>
@@ -50,11 +50,11 @@ public class TaskList
     /// </summary>
     /// <param name="title"> Title of the task</param>
     /// <param name="deadline"> When the task must be completed, cannot contain commas.</param>
-    /// <returns>treu for success, false for failure.</returns>
+    /// <returns>true for success, false for failure.</returns>
     public bool Remove(string title, DateTime deadline)
     {
         Task task = Task.Create(title, deadline);
-        return Tasks.Remove(task) || CompletedTasks.Remove(task);
+        return _tasks.Remove(task) || _completedTasks.Remove(task);
     }
 
     /// <summary>
@@ -66,7 +66,7 @@ public class TaskList
     public bool ContainsTask(string title, DateTime deadline)
     {
         Task task = Task.Create(title, deadline);
-        return Tasks.Contains(task);
+        return _tasks.Contains(task);
     }
 
     /// <summary>
@@ -78,7 +78,7 @@ public class TaskList
     public bool ContainsCompletedTask(string title, DateTime deadline)
     {
         Task task = Task.Create(title, deadline);
-        return CompletedTasks.Contains(task);
+        return _completedTasks.Contains(task);
     }
 
     /// <summary>
@@ -96,11 +96,7 @@ public class TaskList
         DateTime newDeadline
     )
     {
-        var modify = (SortedSet<Task> tasks) =>
-        {
-            return Remove(currentTitle, currentDeadline) && Add(newTitle, newDeadline);
-        };
-        return modify(Tasks) || modify(CompletedTasks);
+        return Remove(currentTitle, currentDeadline) && Add(newTitle, newDeadline);
     }
 
     /// <summary>
@@ -111,14 +107,7 @@ public class TaskList
     /// <returns>True for success, false for failure</returns>
     public bool CompleteTask(string title, DateTime deadline)
     {
-        Task complted = Task.Create(title, deadline);
-        if (Tasks.Remove(complted))
-        {
-            return CompletedTasks.Add(complted);
-        }
-        else
-        {
-            return false;
-        }
+        Task completed = Task.Create(title, deadline);
+        return _tasks.Remove(completed) && _completedTasks.Add(completed);
     }
 }
