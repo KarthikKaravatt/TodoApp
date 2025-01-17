@@ -1,14 +1,24 @@
-﻿using Task = TodoAppLib.Internal.Task;
+﻿using System.Collections.ObjectModel;
+using Task = TodoAppLib.Internal.Task;
 
 namespace TodoAppLib;
 
 /// <summary>
 /// A container that allows for the storage and manipulation of tasks.
 /// </summary>
-public class TaskList
+public record TaskList
 {
     private readonly SortedSet<Task> _tasks = new();
     private readonly SortedSet<Task> _completedTasks = new();
+
+    public ReadOnlySet<Task> Tasks { get; }
+    public ReadOnlySet<Task> CompletedTasks { get; }
+
+    public TaskList()
+    {
+        Tasks = new ReadOnlySet<Task>(_tasks);
+        CompletedTasks = new ReadOnlySet<Task>(_completedTasks);
+    }
 
     /// <summary>
     /// Prints the Current Tasks that are not yet completed.
